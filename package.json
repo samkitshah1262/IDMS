@@ -1,0 +1,24 @@
+{
+  "name": "idms",
+  "version": "1.0.0",
+  "description": "Inventory and Distributuon Management System for Board of Student Sports",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samkitshah1262/IDMS.git"
+  },
+  "author": "Samkit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samkitshah1262/IDMS/issues"
+  },
+  "homepage": "https://github.com/samkitshah1262/IDMS#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "postgresql": "^0.0.1",
+    "sequelize": "^6.25.5"
+  }
+}
