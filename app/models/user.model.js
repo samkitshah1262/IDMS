@@ -1,7 +1,7 @@
-import { Sequelize, Model, DataTypes } from 'sequelize';
+// import { Sequelize, Model, DataTypes } from 'sequelize';
 
 module.exports = (sequelize, Sequelize) => {
-const User = sequelize.define('User', {
+const User = sequelize.define('user', {
     user_id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -26,10 +26,8 @@ const User = sequelize.define('User', {
     auth_id:{ 
         type: Sequelize.STRING,
     },
-    password: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
+}, {
+    timestamps : false,
 });
   return User;
 }

@@ -1,57 +1,98 @@
 const db = require("../models");
-const Transaction = db.Transactions;
+const transactions = db.transactions;
+const items = db.items;
 const Op = db.Sequelize.Op;
+const axios = require('axios');
+const { QueryTypes } = require("sequelize");
+
+
+exports.getpending = async(req,res) => {
+    //const spname = req.body.sport_name;
+    try{
+        const allitems = await transactions.findAll({ where: {
+            status : 'pending',
+        }});
+        console.log(allitems);
+        res.json({"items" : allitems});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).send("some error" + err);
+    }
+}
+
+
+
+
+// approve transactions remianing
+
 
 // Create and Save a new Transaction
-exports.create = (req, res) => {
-    // Validate request
-    if (!req.body.title) {
-        res.status(400).send({
-          message: "Content can not be empty!"
-        });
-        return;
+exports.createTransaction = async (req, res) => {
+
+    const sport_name = req.body.sport_name;
+    const item_name = req.body.item_name;
+    const quantity = req.body.quantity;
+    const name = req.body.name;
+    let initial_transactions;let u_data;
+    try{
+        u_data = await db.sequelize.query( `SELECT user_id FROM users WHERE name = "${name}";`, {type : QueryTypes.SELECT});
+    }catch(err){
+        console.log("user id error" , err);
     }
-    // Create a Transaaction
-    const transaction = {
-    title: req.body.title,
-    description: req.body.description,
-    published: req.body.published ? req.body.published : false
-    };
-
-    // Save Transaction in the database
-    Transaction.create(transaction)
-    .then(data => {
-        res.send(data);
-    })
-    .catch(err => {
-        res.status(500).send({
-        message:
-            err.message || "Some error occurred while creating the Transaction."
-        });
-    });    
-};
-
-// Retrieve all Transaction from the database.
-exports.findAll = (req, res) => {
+    try{
+        initial_transactions = await db.sequelize.query("SELECT COUNT(*) as x FROM `transactions`", {type : QueryTypes.SELECT})
+    }catch(err){
+        console.log("transaction count error" , err);
+    }
+   
+    let ini_trans = initial_transactions[0]['x']+1;
+    
+    const user_id = u_data[0]['user_id'];
   
-};
+    const items_gotten = await axios.post('http://localhost:8000/sport/findavailableitems',{
+        sport_name : sport_name,
+        item_name : item_name,
+        quantity : quantity
+    });
 
-// Find a single Transaction with an id
-exports.findOne = (req, res) => {
-  
-};
+    //console.log("here",items_gotten.data);
+    if(items_gotten.data.items == "not available" || items_gotten.data.items == "failure" ){
+        console.log("lol");
+        res.send("transactions not created ")
+    }else{
+        console.log(items_gotten.data);
+        objs = items_gotten.data.items;
+        console.log(objs);
+        for(i = 0; i< quantity;i++){
+            it = objs[i];
+            newtrans = {
+                user_id : user_id,
+                item_id : it['item_id'],
+                date_issued : new Date().toISOString().slice(0, 19).replace('T', ' '),
+                status : 'pending',
+                transaction_id : ini_trans,
+            }
+            ini_trans+= 1;
 
-// Update a Transaction by the id in the request
-exports.update = (req, res) => {
-  
-};
+            transactions.create(newtrans)
+            .then(data => {
+                console.log("transaction inserted");
+                //res.status(200).send("data inserted");
+            })  
+            .catch(err => {
+                console.log("transaction couldnt be created ", err);
+            });  
 
-// Delete a Transaction with the specified id in the request
-exports.delete = (req, res) => {
-  
-};
+            await items.update({ status : "reserved"}, {
+                where : {
+                    item_id : it['item_id'],
+                }
+            })
+ 
+        };
 
-// Delete all Transactions from the database.
-exports.deleteAll = (req, res) => {
-  
+        res.send("transactions created successfully")
+        
+    }
 };

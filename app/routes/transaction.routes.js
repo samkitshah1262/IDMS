@@ -1,15 +1,10 @@
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const dotenv = require('dotenv');
-dotenv.config();
+module.exports = (app) => {
+    const transaction = require("../controllers/transaction.controller");
+    var router = require("express").Router();
+    router.get("/getpending", transaction.getpending);
+    router.post("/addtrans", transaction.createTransaction);
+    app.use('/transaction', router);
+};
 
 
-
-const dbService = require('./dbService');
-const { response } = require('express');
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended : false }));
 

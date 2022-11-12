@@ -16,23 +16,27 @@ app.use(express.urlencoded({ extended: true }));   /* bodyParser.urlencoded() is
 // db.sequelize.sync();
 // // drop the table if it already exists
 const db = require("./app/models");
+const { sequelize } = require("./app/models");
+const { QueryTypes } = require("sequelize");
 db.sequelize.sync()
   .then(() => {
     console.log("Synced db.");
+    
   })
   .catch((err) => {
     console.log("Failed to sync db: " + err.message);
   });
 
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("Drop and re-sync db.");
-});
-// simple route
+
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to IDMS application." });
 });
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+// const PORT = process.env.PORT || 8080;
+
+require("./app/routes/user.routes")(app);
+require("./app/routes/item.routes")(app);
+require("./app/routes/transaction.routes")(app);
+app.listen(8000, () => {
+  console.log(`Server is running on port ${8000}.`);
 });

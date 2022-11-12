@@ -1,17 +1,17 @@
-const dotenv = require("dotenv");
+// const dotenv = require("dotenv");
 const path = require("path");
 
-if (!process.env.HOST) {
-  dotenv.config({
-    path: path.join(__dirname, "..", ".env"),
-  });
-}
+// if (!process.env.HOST) {
+//   dotenv.config({
+//     path: path.join(__dirname, "..", ".env"),
+//   });
+// }
 
 module.exports = {
     HOST: "localhost",
-    USER: "root",
-    PASSWORD: "123456",
-    DB: "testdb",
+    USER: "test2",
+    PASSWORD: "test2",
+    DB: "inventory",
     dialect: "mysql",
     pool: {
       max: 5,
